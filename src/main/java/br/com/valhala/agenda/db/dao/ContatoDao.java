@@ -27,6 +27,7 @@ public final class ContatoDao {
     private static final String SQL_INSERE_TELEFONE_CONTATO = "INSERT INTO telefone (ddd, numero, tipo, id_contato) VALUES (?, ?, ?, ?)";
     private static final String SQL_LISTA = "SELECT * FROM contato";
     private static final String SQL_PESQUISA_IDS_TELEFONES_CONTATO = "SELECT id FROM telefone WHERE id_contato = ?";
+
     private static BiConsumer<Contato, Connection> atualizaContatoConsumer = (contato, conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_ATUALIZA_CONTATO)) {
             stmt.setString(1, contato.getNome());
@@ -36,6 +37,7 @@ public final class ContatoDao {
             throw new RuntimeException(e);
         }
     };
+
     private static Function<Long, BiFunction<Telefone, Connection, Optional<Long>>> insereTelefoneContatoConsumer = id -> (telefone, conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_INSERE_TELEFONE_CONTATO,
                 java.sql.Statement.RETURN_GENERATED_KEYS)) {
@@ -54,6 +56,7 @@ public final class ContatoDao {
         }
         return Optional.empty();
     };
+
     private static BiConsumer<Telefone, Connection> atualizaTelefoneConsumer = (telefone, conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_ATUALIZA_TELEFONE_CONTATO)) {
             stmt.setString(1, telefone.getDdd());
@@ -65,11 +68,13 @@ public final class ContatoDao {
             throw new RuntimeException(e);
         }
     };
+
     private static Function<Long, BiConsumer<Optional<Collection<Telefone>>, Connection>> insereTelefonesContatoConsumer = id -> (telefones, conexao) -> {
         telefones.ifPresent(lista -> {
             lista.stream().forEach(t -> insereTelefoneContatoConsumer.apply(id).apply(t, conexao));
         });
     };
+
     private static BiFunction<Contato, Connection, Collection<Long>> atualizaTelefonesContatoConsumer = (contato, conexao) -> {
         final Collection<Long> idsPersistidos = new HashSet<>();
         if (contato.getTelefones() != null) {
@@ -84,6 +89,7 @@ public final class ContatoDao {
         }
         return idsPersistidos;
     };
+
     private static BiConsumer<Long, Connection> deletaTelefoneConsumer = (id, conexao) -> {
         try (PreparedStatement stmtDelete = conexao.prepareStatement(SQL_EXCLUI_TELEFONE)) {
             stmtDelete.setLong(1, id);
@@ -92,6 +98,7 @@ public final class ContatoDao {
             throw new RuntimeException(e);
         }
     };
+
     private static BiFunction<Long, Connection, Collection<Long>> consultaIdsTelefonesContatoFunction = (id, conexao) -> {
         final Set<Long> idsRecuperadosBanco = new HashSet<>();
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_PESQUISA_IDS_TELEFONES_CONTATO)) {
@@ -107,6 +114,7 @@ public final class ContatoDao {
         }
         return idsRecuperadosBanco;
     };
+
     private static Function<Long, BiConsumer<Collection<Long>, Connection>> deletaTelefonesContatoFunction = id -> (ids, conexao) -> {
         consultaIdsTelefonesContatoFunction
                 .apply(id, conexao)
@@ -114,6 +122,7 @@ public final class ContatoDao {
                 .filter(idTelefone -> !ids.contains(id))
                 .forEach(idTelefone -> deletaTelefoneConsumer.accept(idTelefone, conexao));
     };
+
     private static BiFunction<Long, Connection, Optional<Contato>> buscaDadosContatoIdFunction = (id, conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_BUSCA_ID)) {
             stmt.setLong(1, id);
@@ -127,6 +136,7 @@ public final class ContatoDao {
         }
         return Optional.empty();
     };
+
     private static BiFunction<Optional<Contato>, Connection, Optional<Contato>> completaDadosContatoFunction = (option, conexao) -> {
 
         if (option.isPresent()) {
@@ -156,13 +166,16 @@ public final class ContatoDao {
 
     };
     private static BiConsumer<Long, Connection> deletaTelefonesConsumer = (id, conexao) -> {
+
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_EXCLUI_TELEFONES_CONTATO)) {
             stmt.setLong(1, id);
             stmt.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
     };
+
     private static BiConsumer<Long, Connection> deletaContatoConsumer = (id, conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_EXCLUI_CONTATO)) {
             stmt.setLong(1, id);
@@ -171,6 +184,7 @@ public final class ContatoDao {
             throw new RuntimeException(e);
         }
     };
+
     private static BiFunction<Contato, Connection, Optional<Long>> insereContatoFunction = (contato, conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_INSERE_CONTATO,
                 java.sql.Statement.RETURN_GENERATED_KEYS)) {
@@ -186,6 +200,7 @@ public final class ContatoDao {
         }
         return Optional.empty();
     };
+
     private static Function<Connection, Optional<Collection<Contato>>> listaContatosFunction = (conexao) -> {
         try (PreparedStatement stmt = conexao.prepareStatement(SQL_LISTA)) {
             try (ResultSet rs = stmt.executeQuery()) {
