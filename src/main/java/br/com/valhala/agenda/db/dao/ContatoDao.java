@@ -69,10 +69,8 @@ public final class ContatoDao {
         }
     };
 
-    private static Function<Long, BiConsumer<Optional<Collection<Telefone>>, Connection>> insereTelefonesContatoConsumer = id -> (telefones, conexao) -> {
-        telefones.ifPresent(lista -> {
-            lista.stream().forEach(t -> insereTelefoneContatoConsumer.apply(id).apply(t, conexao));
-        });
+    private static Function<Long, BiConsumer<Collection<Telefone>, Connection>> insereTelefonesContatoConsumer = id -> (telefones, conexao) -> {
+        telefones.stream().forEach(t -> insereTelefoneContatoConsumer.apply(id).apply(t, conexao));
     };
 
     private static BiFunction<Contato, Connection, Collection<Long>> atualizaTelefonesContatoConsumer = (contato, conexao) -> {
@@ -137,32 +135,24 @@ public final class ContatoDao {
         return Optional.empty();
     };
 
-    private static BiFunction<Optional<Contato>, Connection, Optional<Contato>> completaDadosContatoFunction = (option, conexao) -> {
+    private static BiFunction<Contato, Connection, Contato> completaDadosContatoFunction = (contato, conexao) -> {
 
-        if (option.isPresent()) {
-            Contato contato = option.get();
+        final Collection<Telefone> telefones = new HashSet<>();
 
-            final Collection<Telefone> telefones = new HashSet<>();
-
-            try (PreparedStatement stmtTelefone = conexao.prepareStatement(SQL_BUSCA_TELEFONE_CONTATO)) {
-                stmtTelefone.setLong(1, contato.getId());
-                try (ResultSet rsTelefone = stmtTelefone.executeQuery()) {
-                    while (rsTelefone.next()) {
-                        telefones.add(new Telefone.Builder().id(rsTelefone.getLong("id"))
-                                .ddd(rsTelefone.getString("ddd")).numero(rsTelefone.getString("numero"))
-                                .tipo(EnumTipoTelefone.valueOf(rsTelefone.getString("tipo"))).build());
-                    }
+        try (PreparedStatement stmtTelefone = conexao.prepareStatement(SQL_BUSCA_TELEFONE_CONTATO)) {
+            stmtTelefone.setLong(1, contato.getId());
+            try (ResultSet rsTelefone = stmtTelefone.executeQuery()) {
+                while (rsTelefone.next()) {
+                    telefones.add(new Telefone.Builder().id(rsTelefone.getLong("id"))
+                            .ddd(rsTelefone.getString("ddd")).numero(rsTelefone.getString("numero"))
+                            .tipo(EnumTipoTelefone.valueOf(rsTelefone.getString("tipo"))).build());
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
-
-            Contato contatoCompleto = contato.adicionaTelefones(telefones);
-            return Optional.of(contatoCompleto);
-
-        } else {
-            return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
+        return contato.adicionaTelefones(telefones);
 
     };
     private static BiConsumer<Long, Connection> deletaTelefonesConsumer = (id, conexao) -> {
@@ -232,10 +222,7 @@ public final class ContatoDao {
 
     public static Contato buscaPorId(final Long id, final Connection conexao) {
         AtomicReference<Contato> contato = new AtomicReference<>();
-        buscaDadosContatoIdFunction
-                .apply(id, conexao).ifPresent(
-                c -> completaDadosContatoFunction.apply(Optional.of(c), conexao).ifPresent(
-                        completo -> contato.set(new Contato.Builder().from(completo).build())));
+        buscaDadosContatoIdFunction.apply(id, conexao).ifPresent(c -> contato.set(new Contato.Builder().from(completaDadosContatoFunction.apply(c, conexao)).build()));
         return contato.get();
     }
 
@@ -246,7 +233,7 @@ public final class ContatoDao {
     public static Long insere(final Contato contato, final Connection conexao) throws SQLException {
         AtomicReference<Long> idGerado = new AtomicReference<>();
         insereContatoFunction.apply(contato, conexao).ifPresent(id -> {
-            insereTelefonesContatoConsumer.apply(id).accept(Optional.ofNullable(contato.getTelefones()), conexao);
+            insereTelefonesContatoConsumer.apply(id).accept(contato.getTelefones(), conexao);
             idGerado.set(id);
         });
         return idGerado.get();
