@@ -4,6 +4,6 @@ import java.sql.Connection;
 
 public interface FabricaConexoes {
 
-    Connection getConexao();
+	Connection getConexao();
 
 }

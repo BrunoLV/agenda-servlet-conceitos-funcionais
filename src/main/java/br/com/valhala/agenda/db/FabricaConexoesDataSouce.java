@@ -11,36 +11,36 @@ import java.sql.SQLException;
 
 public class FabricaConexoesDataSouce implements FabricaConexoes {
 
-    private static final FabricaConexoesDataSouce instance = new FabricaConexoesDataSouce();
-    private DataSource dataSource;
+	private static final FabricaConexoesDataSouce instance = new FabricaConexoesDataSouce();
+	private DataSource dataSource;
 
-    protected FabricaConexoesDataSouce() {
-        try {
-            Context contextInicial = new InitialContext();
-            Context contextoAmbiente = (Context) contextInicial.lookup("java:/comp/env");
-            dataSource = (DataSource) contextoAmbiente.lookup("jdbc/agenda");
-        } catch (NamingException e) {
-            throw new AppException(e.getMessage(), e);
-        }
-    }
+	protected FabricaConexoesDataSouce() {
+		try {
+			Context contextInicial = new InitialContext();
+			Context contextoAmbiente = (Context) contextInicial.lookup("java:/comp/env");
+			dataSource = (DataSource) contextoAmbiente.lookup("jdbc/agenda");
+		} catch (NamingException e) {
+			throw new AppException(e.getMessage(), e);
+		}
+	}
 
-    public static FabricaConexoesDataSouce getIntance() {
-        return instance;
-    }
+	public static FabricaConexoesDataSouce getIntance() {
+		return instance;
+	}
 
-    public DataSource getDataSource() {
-        return dataSource;
-    }
+	public DataSource getDataSource() {
+		return dataSource;
+	}
 
-    @Override
-    public Connection getConexao() {
-        try {
-            Connection conexao = dataSource.getConnection();
-            conexao.setAutoCommit(false);
-            return conexao;
-        } catch (SQLException e) {
-            throw new AppException(e.getMessage(), e);
-        }
-    }
+	@Override
+	public Connection getConexao() {
+		try {
+			Connection conexao = dataSource.getConnection();
+			conexao.setAutoCommit(false);
+			return conexao;
+		} catch (SQLException e) {
+			throw new AppException(e.getMessage(), e);
+		}
+	}
 
 }

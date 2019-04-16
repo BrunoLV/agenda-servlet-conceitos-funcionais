@@ -19,124 +19,121 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @DisplayName("Testes de integração com banco de dados para minupulação de Contato")
 public class ContatoDaoTest {
 
-    private Connection conexao;
+	private Connection conexao;
 
-    @BeforeAll
-    public static void constroiBanco() {
-        new FlywayTestUtils().migrarBancoTeste();
-    }
+	@BeforeAll
+	public static void constroiBanco() {
+		new FlywayTestUtils().migrarBancoTeste();
+	}
 
-    @AfterAll
-    public static void destroiBanco() {
-        new FlywayTestUtils().limparBancoTeste();
-    }
+	@AfterAll
+	public static void destroiBanco() {
+		new FlywayTestUtils().limparBancoTeste();
+	}
 
-    @BeforeEach
-    public void inicializa() {
-        conexao = new FabricaConexoesTeste().getConexao();
-    }
+	@BeforeEach
+	public void inicializa() {
+		conexao = new FabricaConexoesTeste().getConexao();
+	}
 
-    @AfterEach
-    public void limpa() {
-        deletaRegistrosDasTabelas();
-    }
+	@AfterEach
+	public void limpa() {
+		deletaRegistrosDasTabelas();
+	}
 
-    @Test
-    @DisplayName("Inserção de contato sem telefones.")
-    public void deveInserirContatoNoBancoDeDados() throws SQLException {
+	@Test
+	@DisplayName("Inserção de contato sem telefones.")
+	public void deveInserirContatoNoBancoDeDados() throws SQLException {
 
-        Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").build();
+		Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").build();
 
-        Long idGerado = ContatoDao.insere(contato, conexao);
+		Long idGerado = ContatoDao.insere(contato, conexao);
 
-        assertNotNull(idGerado);
+		assertNotNull(idGerado);
 
-    }
+	}
 
-    @Test
-    @DisplayName("Atualização apenas nos dados do contato, não dos telefones")
-    public void deveAtualizarContatoNoBancoDeDados() throws SQLException {
+	@Test
+	@DisplayName("Atualização apenas nos dados do contato, não dos telefones")
+	public void deveAtualizarContatoNoBancoDeDados() throws SQLException {
 
-        Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").build();
+		Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").build();
 
-        Long idGerado = ContatoDao.insere(contato, conexao);
+		Long idGerado = ContatoDao.insere(contato, conexao);
 
-        assertNotNull(idGerado);
+		assertNotNull(idGerado);
 
-        Contato contatoBanco = ContatoDao.buscaPorId(idGerado, conexao);
+		Contato contatoBanco = ContatoDao.buscaPorId(idGerado, conexao);
 
-        assertNotNull(contatoBanco);
-        assertThat(contatoBanco.getNome(), equalTo("Pedro Henrique Renan Enrico Drumond"));
+		assertNotNull(contatoBanco);
+		assertThat(contatoBanco.getNome(), equalTo("Pedro Henrique Renan Enrico Drumond"));
 
-        Contato contatoAtualiza = new Contato.Builder()
-                .id(contatoBanco.getId())
-                .nome("Geraldo Renan Campos")
-                .telefones(contatoBanco.getTelefones())
-                .build();
+		Contato contatoAtualiza = new Contato.Builder().id(contatoBanco.getId()).nome("Geraldo Renan Campos")
+				.telefones(contatoBanco.getTelefones()).build();
 
-        ContatoDao.atualiza(contatoAtualiza, conexao);
+		ContatoDao.atualiza(contatoAtualiza, conexao);
 
-        contatoBanco = ContatoDao.buscaPorId(idGerado, conexao);
+		contatoBanco = ContatoDao.buscaPorId(idGerado, conexao);
 
-        assertNotNull(contatoBanco);
-        assertThat(contatoBanco.getNome(), equalTo("Geraldo Renan Campos"));
-    }
+		assertNotNull(contatoBanco);
+		assertThat(contatoBanco.getNome(), equalTo("Geraldo Renan Campos"));
+	}
 
-    @Test
-    @DisplayName("Inserção de contato completo com telefones.")
-    public void deveInserirContatoComTelefonesNoBancoDeDados() throws SQLException {
+	@Test
+	@DisplayName("Inserção de contato completo com telefones.")
+	public void deveInserirContatoComTelefonesNoBancoDeDados() throws SQLException {
 
-        Telefone telefone = new Telefone.Builder().ddd("011").numero("3764-7751").tipo(EnumTipoTelefone.RESIDENCIAL)
-                .build();
+		Telefone telefone = new Telefone.Builder().ddd("011").numero("3764-7751").tipo(EnumTipoTelefone.RESIDENCIAL)
+				.build();
 
-        Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").comTelefone(telefone)
-                .build();
+		Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").comTelefone(telefone)
+				.build();
 
-        Long idGerado = ContatoDao.insere(contato, conexao);
+		Long idGerado = ContatoDao.insere(contato, conexao);
 
-        assertNotNull(idGerado);
+		assertNotNull(idGerado);
 
-        Contato contatoPersistido = ContatoDao.buscaPorId(idGerado, conexao);
+		Contato contatoPersistido = ContatoDao.buscaPorId(idGerado, conexao);
 
-        assertNotNull(contatoPersistido);
-        assertNotNull(contatoPersistido.getTelefones());
-        assertThat(contatoPersistido.getTelefones().size(), equalTo(1));
-        assertThat(contatoPersistido.getTelefones(), hasItem(telefone));
+		assertNotNull(contatoPersistido);
+		assertNotNull(contatoPersistido.getTelefones());
+		assertThat(contatoPersistido.getTelefones().size(), equalTo(1));
+		assertThat(contatoPersistido.getTelefones(), hasItem(telefone));
 
-    }
+	}
 
-    @Test
-    @DisplayName("Exclusão de contato no banco de dados.")
-    public void deveRemoverContatoDoBancoDeDados() throws SQLException {
+	@Test
+	@DisplayName("Exclusão de contato no banco de dados.")
+	public void deveRemoverContatoDoBancoDeDados() throws SQLException {
 
-        Telefone telefone = new Telefone.Builder().ddd("011").numero("3764-7751").tipo(EnumTipoTelefone.RESIDENCIAL)
-                .build();
+		Telefone telefone = new Telefone.Builder().ddd("011").numero("3764-7751").tipo(EnumTipoTelefone.RESIDENCIAL)
+				.build();
 
-        Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").comTelefone(telefone)
-                .build();
+		Contato contato = new Contato.Builder().nome("Pedro Henrique Renan Enrico Drumond").comTelefone(telefone)
+				.build();
 
-        Long idGerado = ContatoDao.insere(contato, conexao);
+		Long idGerado = ContatoDao.insere(contato, conexao);
 
-        assertNotNull(idGerado);
+		assertNotNull(idGerado);
 
-        Contato contatoPersistido = ContatoDao.buscaPorId(idGerado, conexao);
+		Contato contatoPersistido = ContatoDao.buscaPorId(idGerado, conexao);
 
-        assertNotNull(contatoPersistido);
+		assertNotNull(contatoPersistido);
 
-        ContatoDao.excluir(idGerado, conexao);
+		ContatoDao.excluir(idGerado, conexao);
 
-        contatoPersistido = ContatoDao.buscaPorId(idGerado, conexao);
+		contatoPersistido = ContatoDao.buscaPorId(idGerado, conexao);
 
-        assertNull(contatoPersistido);
-    }
+		assertNull(contatoPersistido);
+	}
 
-    private void deletaRegistrosDasTabelas() {
-        try {
-            conexao.createStatement().execute("DELETE FROM telefone");
-            conexao.createStatement().execute("DELETE FROM contato");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	private void deletaRegistrosDasTabelas() {
+		try {
+			conexao.createStatement().execute("DELETE FROM telefone");
+			conexao.createStatement().execute("DELETE FROM contato");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 }
