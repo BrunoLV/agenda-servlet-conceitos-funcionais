@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class ContatoDao {
+public final class  ContatoDao {
 
 	private static final String SQL_ATUALIZA_CONTATO = "UPDATE contato SET nome = ? WHERE id = ?";
 	private static final String SQL_ATUALIZA_TELEFONE_CONTATO = "UPDATE telefone SET ddd = ?, numero = ?, tipo = ? WHERE id = ?";
