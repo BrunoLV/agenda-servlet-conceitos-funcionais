@@ -1,20 +1,25 @@
 package br.com.valhala.agenda.db.dao;
 
-import br.com.valhala.agenda.modelo.Contato;
-import br.com.valhala.agenda.modelo.Telefone;
-import br.com.valhala.agenda.modelo.enums.EnumTipoTelefone;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class ContatoDao {
+import br.com.valhala.agenda.modelo.Contato;
+import br.com.valhala.agenda.modelo.Telefone;
+import br.com.valhala.agenda.modelo.enums.EnumTipoTelefone;
+
+public final class  ContatoDao {
 
 	private static final String SQL_ATUALIZA_CONTATO = "UPDATE contato SET nome = ? WHERE id = ?";
 	private static final String SQL_ATUALIZA_TELEFONE_CONTATO = "UPDATE telefone SET ddd = ?, numero = ?, tipo = ? WHERE id = ?";
@@ -144,6 +149,7 @@ public final class ContatoDao {
 
 		try (PreparedStatement stmtTelefone = conexao.prepareStatement(SQL_BUSCA_TELEFONE_CONTATO)) {
 			stmtTelefone.setLong(1, contato.getId());
+
 			try (ResultSet rsTelefone = stmtTelefone.executeQuery()) {
 				while (rsTelefone.next()) {
 					telefones.add(new Telefone.Builder().id(rsTelefone.getLong("id")).ddd(rsTelefone.getString("ddd"))
@@ -197,7 +203,7 @@ public final class ContatoDao {
 	private static Function<Connection, Optional<Collection<Contato>>> listaContatosFunction = (conexao) -> {
 		try (PreparedStatement stmt = conexao.prepareStatement(SQL_LISTA)) {
 			try (ResultSet rs = stmt.executeQuery()) {
-				Collection<Contato> contatos = new ArrayList<>();
+				Collection<Contato> contatos = new ArrayList<>	();
 				while (rs.next()) {
 					Contato contato = new Contato.Builder().id(rs.getLong("id")).nome(rs.getString("nome")).build();
 					contatos.add(contato);
