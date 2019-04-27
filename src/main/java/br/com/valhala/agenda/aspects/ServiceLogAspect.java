@@ -14,9 +14,10 @@ public class ServiceLogAspect {
 
 	@Around("execution (* br.com.valhala.agenda.service.*.*(..))")
 	public Object logaExecucaoMetodo(ProceedingJoinPoint pjp) throws Throwable {
-		
-		MethodSignature signature = (MethodSignature)pjp.getSignature();
-		LOG.info("Executando metodo: " + signature.getName() + " da classe: " + signature.getDeclaringType().getSimpleName());
+
+		MethodSignature signature = (MethodSignature) pjp.getSignature();
+		LOG.info("Executando metodo: " + signature.getName() + " da classe: "
+				+ signature.getDeclaringType().getSimpleName());
 		try {
 			Object resultado = pjp.proceed();
 			return resultado;
@@ -24,7 +25,7 @@ public class ServiceLogAspect {
 			LOG.error("Ocorreu erro.", e);
 			throw e;
 		}
-
+                                                                                                                                                                                                       
 	}
 
 }
