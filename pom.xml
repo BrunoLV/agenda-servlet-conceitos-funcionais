@@ -84,15 +84,16 @@
 
 		<dependency>
 			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
+			<artifactId>aspectjweaver</artifactId>
 			<version>1.9.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
+			<artifactId>aspectjrt</artifactId>
 			<version>1.9.3</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -177,13 +178,8 @@
 						<version>1.4.199</version>
 					</dependency>
 
-					<!--
-					<dependency>
-						<groupId>mysql</groupId>
-						<artifactId>mysql-connector-java</artifactId>
-						<version>8.0.15</version>
-					</dependency>
-					-->
+					<!-- <dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> 
+						<version>8.0.15</version> </dependency> -->
 
 				</dependencies>
 			</plugin>

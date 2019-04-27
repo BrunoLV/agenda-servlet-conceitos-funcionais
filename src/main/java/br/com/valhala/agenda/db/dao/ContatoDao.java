@@ -87,7 +87,7 @@ public final class  ContatoDao {
 			contato.getTelefones().stream().forEach(t -> {
 				if (t.getId() != null) {
 					atualizaTelefoneConsumer.accept(t, conexao);
-					idsPersistidos.add(contato.getId());
+					idsPersistidos.add(t.getId());
 				} else {
 					insereTelefoneContatoConsumer.apply(contato.getId()).apply(t, conexao)
 							.ifPresent(idTelefone -> idsPersistidos.add(idTelefone));
@@ -125,7 +125,7 @@ public final class  ContatoDao {
 
 	private static Function<Long, BiConsumer<Collection<Long>, Connection>> deletaTelefonesContatoFunction = id -> (ids,
 			conexao) -> {
-		consultaIdsTelefonesContatoFunction.apply(id, conexao).stream().filter(idTelefone -> !ids.contains(id))
+		consultaIdsTelefonesContatoFunction.apply(id, conexao).stream().filter(idTelefone -> !ids.contains(idTelefone))
 				.forEach(idTelefone -> deletaTelefoneConsumer.accept(idTelefone, conexao));
 	};
 

@@ -28,7 +28,7 @@
 	</Appenders>
 	<Loggers>
 		<Root level="DEBUG">
-			<AppenderRef ref="DAILY" />
+			<AppenderRef ref="CONSOLE" />
 		</Root>
 	</Loggers>
 </Configuration>
