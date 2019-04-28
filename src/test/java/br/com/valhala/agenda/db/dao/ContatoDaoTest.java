@@ -1,6 +1,6 @@
 package br.com.valhala.agenda.db.dao;
 
-import br.com.valhala.agenda.db.FabricaConexoesTeste;
+import br.com.valhala.agenda.db.ConnectionUtilsTest;
 import br.com.valhala.agenda.db.FlywayTestUtils;
 import br.com.valhala.agenda.modelo.Contato;
 import br.com.valhala.agenda.modelo.Telefone;
@@ -33,12 +33,17 @@ public class ContatoDaoTest {
 
 	@BeforeEach
 	public void inicializa() {
-		conexao = new FabricaConexoesTeste().getConexao();
+		conexao = ConnectionUtilsTest.connectionSupplier.get();
 	}
 
 	@AfterEach
 	public void limpa() {
 		deletaRegistrosDasTabelas();
+		try {
+			conexao.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test

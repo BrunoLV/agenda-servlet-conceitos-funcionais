@@ -25,7 +25,7 @@ public class ServiceLogAspect {
 			LOG.error("Ocorreu erro.", e);
 			throw e;
 		}
-                                                                                                                                                                                                       
+
 	}
 
 }

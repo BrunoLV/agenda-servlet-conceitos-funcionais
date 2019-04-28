@@ -1,6 +1,6 @@
 package br.com.valhala.agenda.web.listeners.flyway;
 
-import br.com.valhala.agenda.db.FabricaConexoesDataSouce;
+import br.com.valhala.agenda.db.ConnectionUtils;
 import org.flywaydb.core.Flyway;
 
 import javax.servlet.ServletContextEvent;
@@ -21,7 +21,7 @@ public class FlywayMigrationsListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		Flyway flyway = Flyway.configure().dataSource(FabricaConexoesDataSouce.getIntance().getDataSource()).load();
+		Flyway flyway = Flyway.configure(). dataSource(ConnectionUtils.dataSourceSupplier.get()).load();
 		flyway.repair();
 		flyway.migrate();
 	}

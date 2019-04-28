@@ -1,5 +1,7 @@
 package br.com.valhala.agenda.db;
 
+import java.util.Properties;
+
 import org.flywaydb.core.Flyway;
 
 public class FlywayTestUtils {
@@ -7,8 +9,12 @@ public class FlywayTestUtils {
 	private Flyway flyway;
 
 	public FlywayTestUtils() {
-		flyway = Flyway.configure().dataSource(PropriedadesBancoTesteUtils.getUrl(),
-				PropriedadesBancoTesteUtils.getUsuario(), PropriedadesBancoTesteUtils.getSenha()).load();
+
+		Properties propriedadesBancoDados = ConnectionUtilsTest.propriedadesBancoSupplier.get();
+
+		flyway = Flyway.configure().dataSource(propriedadesBancoDados.getProperty("h2.url"),
+				propriedadesBancoDados.getProperty("h2.user"), propriedadesBancoDados.getProperty("h2.password"))
+				.load();
 	}
 
 	public void migrarBancoTeste() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG">
+<Configuration status="INFO">
 
 	<Properties>
 		<Property name="nomeArquivo">target/agenda.log</Property>
@@ -8,16 +8,15 @@
 	<Appenders>
 		<Console name="CONSOLE" target="SYSTEM_OUT">
 			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+				pattern="%d [%t] %-5level %logger{36} - %msg%n%throwable" />
 		</Console>
 
-		<RollingFile name="DAILY"
-					 append="true"
-					 fileName="${nomeArquivo}"
-					 filePattern="${nomeArquivo}.%d{yyyyMMdd}.gz">
+		<RollingFile name="DAILY" append="true"
+			fileName="${nomeArquivo}"
+			filePattern="${nomeArquivo}.%d{yyyyMMdd}.gz">
 
 			<PatternLayout
-					pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+				pattern="%d [%t] %-5level %logger{36} - %msg%n%throwable" />
 
 			<Policies>
 				<TimeBasedTriggeringPolicy />
@@ -27,7 +26,7 @@
 
 	</Appenders>
 	<Loggers>
-		<Root level="DEBUG">
+		<Root level="INFO">
 			<AppenderRef ref="CONSOLE" />
 		</Root>
 	</Loggers>

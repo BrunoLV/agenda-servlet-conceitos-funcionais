@@ -2,22 +2,22 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
 
-    <New id="agenda" class="org.eclipse.jetty.plus.jndi.Resource">
-        <Arg></Arg>
-        <Arg>jdbc/agenda</Arg>
-        <Arg>
-            <New class="com.zaxxer.hikari.HikariDataSource">
-                <Arg>
-                    <New class="com.zaxxer.hikari.HikariConfig">
-                        <Set name="maximumPoolSize">20</Set>
-                        <Set name="driverClassName">org.h2.Driver</Set>
-                        <Set name="username">sa</Set>
-                        <Set name="password">''</Set>
-                        <Set name="jdbcUrl">jdbc:h2:~/agenda;DB_CLOSE_DELAY=-1</Set>
-                    </New>
-                </Arg>
-            </New>
-        </Arg>
-    </New>
+	<New id="agenda" class="org.eclipse.jetty.plus.jndi.Resource">
+		<Arg></Arg>
+		<Arg>jdbc/agenda</Arg>
+		<Arg>
+			<New class="com.zaxxer.hikari.HikariDataSource">
+				<Arg>
+					<New class="com.zaxxer.hikari.HikariConfig">
+						<Set name="maximumPoolSize">20</Set>
+						<Set name="driverClassName">org.h2.Driver</Set>
+						<Set name="username">sa</Set>
+						<Set name="password">''</Set>
+						<Set name="jdbcUrl">jdbc:h2:~/agenda;DB_CLOSE_DELAY=-1</Set>
+					</New>
+				</Arg>
+			</New>
+		</Arg>
+	</New>
 
 </Configure>

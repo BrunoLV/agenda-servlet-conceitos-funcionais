@@ -19,7 +19,7 @@ import br.com.valhala.agenda.modelo.Contato;
 import br.com.valhala.agenda.modelo.Telefone;
 import br.com.valhala.agenda.modelo.enums.EnumTipoTelefone;
 
-public final class  ContatoDao {
+public abstract class ContatoDao {
 
 	private static final String SQL_ATUALIZA_CONTATO = "UPDATE contato SET nome = ? WHERE id = ?";
 	private static final String SQL_ATUALIZA_TELEFONE_CONTATO = "UPDATE telefone SET ddd = ?, numero = ?, tipo = ? WHERE id = ?";
@@ -43,24 +43,25 @@ public final class  ContatoDao {
 		}
 	};
 
-	private static Function<Long, BiFunction<Telefone, Connection, Optional<Long>>> insereTelefoneContatoConsumer = id -> (
-			telefone, conexao) -> {
+	private static Function<Connection, BiFunction<Long, Telefone, Optional<Long>>> insereTelefoneContatoConsumer = conexao -> (
+			idContato, telefone) -> {
 		try (PreparedStatement stmt = conexao.prepareStatement(SQL_INSERE_TELEFONE_CONTATO,
 				java.sql.Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, telefone.getDdd());
 			stmt.setString(2, telefone.getNumero());
 			stmt.setString(3, telefone.getTipo().name());
-			stmt.setLong(4, id);
+			stmt.setLong(4, idContato);
 			stmt.execute();
 			try (ResultSet rs = stmt.getGeneratedKeys()) {
 				if (rs.next()) {
 					return Optional.of(rs.getLong(1));
+				} else {
+					return Optional.empty();
 				}
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return Optional.empty();
 	};
 
 	private static BiConsumer<Telefone, Connection> atualizaTelefoneConsumer = (telefone, conexao) -> {
@@ -75,26 +76,29 @@ public final class  ContatoDao {
 		}
 	};
 
-	private static Function<Long, BiConsumer<Collection<Telefone>, Connection>> insereTelefonesContatoConsumer = id -> (
-			telefones, conexao) -> {
-		telefones.stream().forEach(t -> insereTelefoneContatoConsumer.apply(id).apply(t, conexao));
+	private static Function<Connection, BiConsumer<Long, Collection<Telefone>>> insereTelefonesContatoConsumer = conexao -> (
+			idContato, telefones) -> {
+		telefones.stream().forEach(telefone -> insereTelefoneContatoConsumer.apply(conexao).apply(idContato, telefone));
 	};
 
-	private static BiFunction<Contato, Connection, Collection<Long>> atualizaTelefonesContatoConsumer = (contato,
-			conexao) -> {
+	private static BiFunction<Contato, Connection, Optional<Collection<Long>>> atualizaTelefonesContatoFunction = (
+			contato, conexao) -> {
+
 		final Collection<Long> idsPersistidos = new HashSet<>();
+
 		if (contato.getTelefones() != null) {
 			contato.getTelefones().stream().forEach(t -> {
 				if (t.getId() != null) {
 					atualizaTelefoneConsumer.accept(t, conexao);
 					idsPersistidos.add(t.getId());
 				} else {
-					insereTelefoneContatoConsumer.apply(contato.getId()).apply(t, conexao)
+					insereTelefoneContatoConsumer.apply(conexao).apply(contato.getId(), t)
 							.ifPresent(idTelefone -> idsPersistidos.add(idTelefone));
 				}
 			});
 		}
-		return idsPersistidos;
+
+		return !idsPersistidos.isEmpty() ? Optional.of(idsPersistidos) : Optional.empty();
 	};
 
 	private static BiConsumer<Long, Connection> deletaTelefoneConsumer = (id, conexao) -> {
@@ -164,6 +168,7 @@ public final class  ContatoDao {
 		return contato.adicionaTelefones(telefones);
 
 	};
+
 	private static BiConsumer<Long, Connection> deletaTelefonesConsumer = (id, conexao) -> {
 
 		try (PreparedStatement stmt = conexao.prepareStatement(SQL_EXCLUI_TELEFONES_CONTATO)) {
@@ -184,7 +189,7 @@ public final class  ContatoDao {
 		}
 	};
 
-	private static BiFunction<Contato, Connection, Optional<Long>> insereContatoFunction = (contato, conexao) -> {
+	private static BiFunction<Connection, Contato, Optional<Long>> insereContatoFunction = (conexao, contato) -> {
 		try (PreparedStatement stmt = conexao.prepareStatement(SQL_INSERE_CONTATO,
 				java.sql.Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, contato.getNome());
@@ -192,18 +197,19 @@ public final class  ContatoDao {
 			try (ResultSet rs = stmt.getGeneratedKeys()) {
 				if (rs.next()) {
 					return Optional.of(rs.getLong(1));
+				} else {
+					return Optional.empty();
 				}
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return Optional.empty();
 	};
 
 	private static Function<Connection, Optional<Collection<Contato>>> listaContatosFunction = (conexao) -> {
 		try (PreparedStatement stmt = conexao.prepareStatement(SQL_LISTA)) {
 			try (ResultSet rs = stmt.executeQuery()) {
-				Collection<Contato> contatos = new ArrayList<>	();
+				Collection<Contato> contatos = new ArrayList<>();
 				while (rs.next()) {
 					Contato contato = new Contato.Builder().id(rs.getLong("id")).nome(rs.getString("nome")).build();
 					contatos.add(contato);
@@ -218,14 +224,10 @@ public final class  ContatoDao {
 		return Optional.empty();
 	};
 
-	private ContatoDao() {
-		super();
-	}
-
 	public static void atualiza(final Contato contato, final Connection conexao) {
 		atualizaContatoConsumer.accept(contato, conexao);
-		deletaTelefonesContatoFunction.apply(contato.getId())
-				.accept(atualizaTelefonesContatoConsumer.apply(contato, conexao), conexao);
+		atualizaTelefonesContatoFunction.apply(contato, conexao)
+				.ifPresent(lista -> deletaTelefonesContatoFunction.apply(contato.getId()).accept(lista, conexao));
 	}
 
 	public static Contato buscaPorId(final Long id, final Connection conexao) {
@@ -241,10 +243,12 @@ public final class  ContatoDao {
 
 	public static Long insere(final Contato contato, final Connection conexao) throws SQLException {
 		AtomicReference<Long> idGerado = new AtomicReference<>();
-		insereContatoFunction.apply(contato, conexao).ifPresent(id -> {
-			insereTelefonesContatoConsumer.apply(id).accept(contato.getTelefones(), conexao);
+
+		insereContatoFunction.apply(conexao, contato).ifPresent(id -> {
+			insereTelefonesContatoConsumer.apply(conexao).accept(id, contato.getTelefones());
 			idGerado.set(id);
 		});
+
 		return idGerado.get();
 	}
 

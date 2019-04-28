@@ -8,39 +8,35 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.function.Supplier;
 
-public class FabricaConexoesDataSouce implements FabricaConexoes {
+public abstract class ConnectionUtils {
 
-	private static final FabricaConexoesDataSouce instance = new FabricaConexoesDataSouce();
-	private DataSource dataSource;
-
-	protected FabricaConexoesDataSouce() {
+	public static final Supplier<DataSource> dataSourceSupplier = () -> {
 		try {
+
 			Context contextInicial = new InitialContext();
 			Context contextoAmbiente = (Context) contextInicial.lookup("java:/comp/env");
-			dataSource = (DataSource) contextoAmbiente.lookup("jdbc/agenda");
+			DataSource dataSource = (DataSource) contextoAmbiente.lookup("jdbc/agenda");
+
+			return dataSource;
+
 		} catch (NamingException e) {
 			throw new AppException(e.getMessage(), e);
 		}
-	}
+	};
 
-	public static FabricaConexoesDataSouce getIntance() {
-		return instance;
-	}
-
-	public DataSource getDataSource() {
-		return dataSource;
-	}
-
-	@Override
-	public Connection getConexao() {
+	public static final Supplier<Connection> connectionSupplier = () -> {
 		try {
-			Connection conexao = dataSource.getConnection();
+
+			Connection conexao = dataSourceSupplier.get().getConnection();
 			conexao.setAutoCommit(false);
+
 			return conexao;
+
 		} catch (SQLException e) {
 			throw new AppException(e.getMessage(), e);
 		}
-	}
+	};
 
 }

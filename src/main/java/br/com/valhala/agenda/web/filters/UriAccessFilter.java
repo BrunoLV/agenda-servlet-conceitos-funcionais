@@ -25,6 +25,12 @@ public class UriAccessFilter implements Filter {
 	private static final Logger LOGGER = LogManager.getLogger(UriAccessFilter.class);
 
 	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		if (request.getCharacterEncoding() == null) {
@@ -38,11 +44,13 @@ public class UriAccessFilter implements Filter {
 
 		boolean isRecursoEstatico = url.contains("/resources/");
 
+		/*
 		if (!isRecursoEstatico) {
 			LOGGER.info(
 					"Uri: " + url + (queryString != null ? ("/" + queryString) : "") + " realizada dentro da Sessao "
 							+ req.getSession(true).getId() + " com Metodo: " + req.getMethod());
 		}
+		*/
 
 		chain.doFilter(request, response);
 	}
@@ -50,13 +58,7 @@ public class UriAccessFilter implements Filter {
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

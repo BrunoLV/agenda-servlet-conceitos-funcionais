@@ -6,10 +6,47 @@ import java.io.Serializable;
 
 public class Telefone implements Serializable {
 
+	public static class Builder {
+
+		private Long id;
+		private String ddd;
+		private String numero;
+		private EnumTipoTelefone tipo;
+
+		public Builder() {
+			super();
+		}
+
+		public Telefone build() {
+			return new Telefone(this);
+		}
+
+		public Builder ddd(String ddd) {
+			this.ddd = ddd;
+			return this;
+		}
+
+		public Builder id(Long id) {
+			this.id = id;
+			return this;
+		}
+
+		public Builder numero(String numero) {
+			this.numero = numero;
+			return this;
+		}
+
+		public Builder tipo(EnumTipoTelefone tipo) {
+			this.tipo = tipo;
+			return this;
+		}
+
+	}
 	private static final long serialVersionUID = 7361262600196016914L;
 	private Long id;
 	private String ddd;
 	private String numero;
+
 	private EnumTipoTelefone tipo;
 
 	private Telefone(Builder builder) {
@@ -95,43 +132,6 @@ public class Telefone implements Serializable {
 		}
 		builder2.append("]");
 		return builder2.toString();
-	}
-
-	public static class Builder {
-
-		private Long id;
-		private String ddd;
-		private String numero;
-		private EnumTipoTelefone tipo;
-
-		public Builder() {
-			super();
-		}
-
-		public Telefone build() {
-			return new Telefone(this);
-		}
-
-		public Builder ddd(String ddd) {
-			this.ddd = ddd;
-			return this;
-		}
-
-		public Builder id(Long id) {
-			this.id = id;
-			return this;
-		}
-
-		public Builder numero(String numero) {
-			this.numero = numero;
-			return this;
-		}
-
-		public Builder tipo(EnumTipoTelefone tipo) {
-			this.tipo = tipo;
-			return this;
-		}
-
 	}
 
 }

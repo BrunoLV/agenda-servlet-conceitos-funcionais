@@ -7,8 +7,73 @@ import java.util.stream.Collectors;
 
 public class Contato implements Serializable, Comparable<Contato> {
 
+	public static class Builder {
+		private Long id;
+		private String nome;
+
+		private Collection<Telefone> telefones = new HashSet<>();
+
+		public Builder() {
+			super();
+		}
+
+		public Builder adicionaTelefones(Collection<Telefone> telefones) {
+			this.telefones.addAll(telefones);
+			return this;
+		}
+
+		public Contato build() {
+			return new Contato(this);
+		}
+
+		public Builder comTelefone(Telefone telefone) {
+			telefones.add(telefone);
+			return this;
+		}
+
+		public Builder from(final Contato contato) {
+
+			this.id = contato.getId();
+			this.nome = contato.getNome();
+
+			if (contato.telefones != null && !contato.telefones.isEmpty()) {
+
+			}
+
+			if (contato.telefones != null && !contato.telefones.isEmpty()) {
+				this.telefones = new HashSet<>(contato.telefones);
+			}
+
+			return this;
+
+		}
+
+		public Builder id(Long id) {
+			this.id = id;
+			return this;
+		}
+
+		public Builder nome(String nome) {
+			this.nome = nome;
+			return this;
+		}
+
+		public Builder semTelefone(final Telefone telefone) {
+
+			if (this.telefones != null)
+				this.telefones = this.telefones.stream().filter(t -> !t.equals(telefone)).collect(Collectors.toSet());
+
+			return this;
+		}
+
+		public Builder telefones(Collection<Telefone> telefones) {
+			this.telefones = telefones;
+			return this;
+		}
+	}
 	private static final long serialVersionUID = -4637163948422075131L;
 	private Long id;
+
 	private String nome;
 
 	private Collection<Telefone> telefones = new HashSet<>();
@@ -100,71 +165,6 @@ public class Contato implements Serializable, Comparable<Contato> {
 		}
 		builder2.append("]");
 		return builder2.toString();
-	}
-
-	public static class Builder {
-		private Long id;
-		private String nome;
-
-		private Collection<Telefone> telefones = new HashSet<>();
-
-		public Builder() {
-			super();
-		}
-
-		public Builder from(final Contato contato) {
-
-			this.id = contato.getId();
-			this.nome = contato.getNome();
-
-			if (contato.telefones != null && !contato.telefones.isEmpty()) {
-
-			}
-
-			if (contato.telefones != null && !contato.telefones.isEmpty()) {
-				this.telefones = new HashSet<>(contato.telefones);
-			}
-
-			return this;
-
-		}
-
-		public Builder semTelefone(final Telefone telefone) {
-
-			if (this.telefones != null)
-				this.telefones = this.telefones.stream().filter(t -> !t.equals(telefone)).collect(Collectors.toSet());
-
-			return this;
-		}
-
-		public Contato build() {
-			return new Contato(this);
-		}
-
-		public Builder id(Long id) {
-			this.id = id;
-			return this;
-		}
-
-		public Builder nome(String nome) {
-			this.nome = nome;
-			return this;
-		}
-
-		public Builder comTelefone(Telefone telefone) {
-			telefones.add(telefone);
-			return this;
-		}
-
-		public Builder telefones(Collection<Telefone> telefones) {
-			this.telefones = telefones;
-			return this;
-		}
-
-		public Builder adicionaTelefones(Collection<Telefone> telefones) {
-			this.telefones.addAll(telefones);
-			return this;
-		}
 	}
 
 }

@@ -4,30 +4,6 @@ import java.io.Serializable;
 
 public class Erro implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private String mensagem;
-	private String uri;
-	private Integer statusCode;
-
-	private Erro(Builder builder) {
-		super();
-		mensagem = builder.mensagem;
-		uri = builder.uri;
-		statusCode = builder.statusCode;
-	}
-
-	public String getMensagem() {
-		return mensagem;
-	}
-
-	public Integer getStatusCode() {
-		return statusCode;
-	}
-
-	public String getUri() {
-		return uri;
-	}
-
 	public static class Builder {
 
 		private String mensagem;
@@ -57,6 +33,30 @@ public class Erro implements Serializable {
 			return this;
 		}
 
+	}
+	private static final long serialVersionUID = 1L;
+	private String mensagem;
+	private String uri;
+
+	private Integer statusCode;
+
+	private Erro(Builder builder) {
+		super();
+		mensagem = builder.mensagem;
+		uri = builder.uri;
+		statusCode = builder.statusCode;
+	}
+
+	public String getMensagem() {
+		return mensagem;
+	}
+
+	public Integer getStatusCode() {
+		return statusCode;
+	}
+
+	public String getUri() {
+		return uri;
 	}
 
 }
